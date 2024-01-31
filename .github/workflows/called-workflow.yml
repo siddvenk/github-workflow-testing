@@ -9,6 +9,7 @@ on:
 jobs:
   dump-triggered-workflow-info:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.event == 'schedule' }}
     steps:
       - name: Checkout Correct Branch
         uses: actions/checkout@v2
