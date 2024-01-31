@@ -1,0 +1,39 @@
+name: Called Workflow
+
+on:
+  workflow_run:
+    workflows: "*"
+    types:
+      - completed
+
+jobs:
+  dump-triggered-workflow-info:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Correct Branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+      - run: |
+          git branch
+          env
+      - name: Dump Workflow Context
+        env:
+          WORKFLOW_RUN: ${{ toJson(github.event.workflow_run) }}
+        run: |
+          echo "$WORKFLOW_RUN"
+      - name: Parse Workflow Name
+        env:
+          WORKFLOW_NAME: ${{ github.event.workflow_run.display_title }}
+          REPO_NAME: ${{ github.event.workflow_run.repository.name }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        run: |
+          workflow_name=$(echo "$WORKFLOW_NAME" | tr -d  ' ')
+          echo "$workflow_name"
+          echo "$REPO_NAME"
+          echo "$CONCLUSION"
+          metric_name="${REPO_NAME}-${workflow_name}-Failure"
+          [[ "$CONCLUSION" == "failure" ]]
+          metric_value=$?
+          echo "$metric_name"
+          echo "$metric_value"
