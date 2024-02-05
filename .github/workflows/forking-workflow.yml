@@ -42,7 +42,7 @@ jobs:
           echo "$GITHUB_CONTEXT"
       - name: Exit Failure
         run: |
-          exit 1
+          exit 0 
 
   wrap-up:
     if: always()
